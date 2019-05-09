@@ -5,13 +5,19 @@ import java.time.{ZoneOffset, ZonedDateTime}
 import com.algolia.search.{DefaultSearchClient, Defaults, SearchClient}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.scalatest._
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.time.{Millis, Seconds, Span}
 
 class IntegrationSpec
     extends FunSuite
     with BeforeAndAfterAll
     with BeforeAndAfter
     with Inspectors
-    with Matchers {
+    with Matchers
+    with ScalaFutures {
+
+  implicit val patience: PatienceConfig =
+    PatienceConfig(timeout = Span(30000, Seconds), interval = Span(500, Millis))
 
   override protected def beforeAll(): Unit =
     Defaults.getObjectMapper.registerModule(DefaultScalaModule)

@@ -12,7 +12,6 @@ import scala.compat.java8.FutureConverters._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success}
 
 class SearchSpec extends IntegrationSpec {
 
@@ -61,19 +60,22 @@ class SearchSpec extends IntegrationSpec {
       .searchAsync(
         new Query("elon")
           .setFacets(Collections.singletonList("*"))
-          .setFacetFilters(Collections.singletonList(Collections.singletonList("company:tesla"))))
+          .setFacetFilters(Collections.singletonList(Collections.singletonList("company:tesla")))
+      )
       .toScala
 
     val searchElonFuture2 = index
       .searchAsync(
         new Query("elon")
           .setFacets(Collections.singletonList("*"))
-          .setFilters("(company:tesla OR company:spacex)"))
+          .setFilters("(company:tesla OR company:spacex)")
+      )
       .toScala
 
     val searchFacetFuture = index
       .searchForFacetValuesAsync(
-        new SearchForFacetRequest().setFacetName("company").setFacetQuery("a"))
+        new SearchForFacetRequest().setFacetName("company").setFacetQuery("a")
+      )
       .toScala
 
     val aggFut = for {
@@ -84,13 +86,11 @@ class SearchSpec extends IntegrationSpec {
       f5result <- searchFacetFuture
     } yield (f1Result, f2Result, f3Result, f4result, f5result)
 
-    aggFut.onComplete {
-      case Success(x) =>
-        x._1.getHits should have size 2
-        x._2.getQueryID should not be null
-        x._3.getHits should have size 1
-        x._4.getHits should have size 2
-      case Failure(e) => e.printStackTrace()
+    whenReady(aggFut) { x =>
+      x._1.getHits should have length 2
+      x._2.getQueryID should not be null
+      x._3.getHits should have length 1
+      x._4.getHits should have length 2
     }
 
   }

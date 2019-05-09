@@ -18,7 +18,6 @@ class IndexingSpec extends IntegrationSpec {
   after(index delete)
 
   test("Indexing test") {
-
     // AddObject with ID
     val objectOne = AlgoliaIndexing(Some("one"))
     val addObjectOneFuture = index.saveObjectAsync(objectOne).toScala
@@ -30,8 +29,10 @@ class IndexingSpec extends IntegrationSpec {
       Seq(AlgoliaIndexing(Some("two"), Some("test")), AlgoliaIndexing(Some("three")))
     val objectsWithIdsFuture = index.saveObjectsAsync(objectsWithIds.asJava).toScala
 
-    val objectsWoIds = Seq(AlgoliaIndexing(property = Some("addObjectsWoId")),
-                           AlgoliaIndexing(property = Some("addObjectsWoId")))
+    val objectsWoIds = Seq(
+      AlgoliaIndexing(property = Some("addObjectsWoId")),
+      AlgoliaIndexing(property = Some("addObjectsWoId"))
+    )
     val addObjectsWoIdsFuture = index.saveObjectsAsync(objectsWoIds.asJava, true).toScala
 
     val objectsToBatch =
@@ -51,10 +52,11 @@ class IndexingSpec extends IntegrationSpec {
 
     Await.ready(aggFut, Duration.Inf)
 
-    val batchResponse = index.getObjectsAsync(ids.asJava).toScala
-    batchResponse.map { u =>
-      u should have size 1
-    }
-  }
+    val getIds = index.getObjectsAsync(ids.asJava).toScala
 
+    whenReady(getIds) { x =>
+      x should have size 1000
+    }
+
+  }
 }
