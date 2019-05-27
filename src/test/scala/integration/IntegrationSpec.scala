@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
+import wrapper.SearchClientWrapper
 
 class IntegrationSpec
     extends FunSuite
@@ -29,6 +30,7 @@ class IntegrationSpec
   lazy val javaVersion: String = System.getProperty("java.version")
 
   lazy val searchClient: SearchClient = DefaultSearchClient.create(applicationId, apiKey)
+  lazy val searchClientWrapper: SearchClientWrapper = new SearchClientWrapper(applicationId, apiKey)
 
   def getTestIndexName(indexName: String): String = {
     val utc = ZonedDateTime.now(ZoneOffset.UTC)
